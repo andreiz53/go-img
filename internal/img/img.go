@@ -47,7 +47,6 @@ func New(path string) *Image {
 	name = name[:len(name)-len(extension)]
 	newPath := strings.Join(splitPath[:len(splitPath)-1], "/")
 
-	// calculate width and height
 	width, height := getImageSizes(path)
 
 	return &Image{

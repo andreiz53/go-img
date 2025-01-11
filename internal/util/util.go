@@ -1,6 +1,8 @@
 package util
 
 import (
+	"io"
+	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -20,4 +22,26 @@ func RenameImage(path string, suffix string) string {
 	dirs[len(dirs)-1] = fileName
 
 	return strings.Join(dirs, "/")
+}
+
+func CopyFile(src string, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
+	destFile, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer destFile.Close()
+	_, err = io.Copy(destFile, srcFile)
+	if err != nil {
+		return err
+	}
+	err = destFile.Sync()
+	if err != nil {
+		return err
+	}
+	return nil
 }

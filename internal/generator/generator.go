@@ -2,7 +2,8 @@ package generator
 
 import (
 	"fmt"
-	img "go-img/internal/image"
+	"go-img/internal/img"
+	"go-img/internal/util"
 	"log"
 	"os"
 )
@@ -47,6 +48,14 @@ func (ig ImageGenerator) GenerateHTMLs() error {
 
 		file.WriteString(fmt.Sprintf("### %s\n", i.Path+"/"+i.Name+i.Extension))
 		file.WriteString(node + "\n\n")
+	}
+	return nil
+}
+
+func (ig ImageGenerator) GenerateTempl() error {
+	err := util.CopyFile("internal/util/image.templ", "tmp/image.templ")
+	if err != nil {
+		return err
 	}
 	return nil
 }

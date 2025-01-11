@@ -2,22 +2,15 @@ package main
 
 import (
 	_ "embed"
+	"go-img/internal/constants"
 	"go-img/internal/generator"
-	img "go-img/internal/image"
+	"go-img/internal/img"
 	"go-img/internal/search"
 	"log"
 )
 
-var (
-	AssetsDir          = "assets/images"
-	FSDir              = "assets/images"
-	TmpDir             = "tmp"
-	IncludedExtensions = []string{".png", ".jpg", ".jpeg"}
-	WidthsToConvert    = []string{"200", "600"}
-)
-
 func main() {
-	s := search.NewFileSearcher(AssetsDir, IncludedExtensions)
+	s := search.NewFileSearcher(constants.AssetsDir, constants.IncludedExtensions)
 	files, err := s.Search()
 	if err != nil {
 		log.Fatal("could not search through the given directory")
@@ -27,9 +20,9 @@ func main() {
 	if images == nil {
 		log.Fatal("could not find any images")
 	}
-	images = img.Filter(images, WidthsToConvert)
+	images = img.Filter(images, constants.WidthsToConvert)
 
-	generator := generator.NewImageGenerator(images, WidthsToConvert)
+	generator := generator.NewImageGenerator(images, constants.WidthsToConvert)
 	err = generator.GenerateImages()
 	if err != nil {
 		log.Fatal("could not generate images")
@@ -37,5 +30,9 @@ func main() {
 	err = generator.GenerateHTMLs()
 	if err != nil {
 		log.Fatal("could not generate HTML")
+	}
+	err = generator.GenerateTempl()
+	if err != nil {
+		log.Fatal("could not generate templ", err)
 	}
 }

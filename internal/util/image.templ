@@ -1,0 +1,21 @@
+package components
+
+type ImageProps struct {
+    Src string
+    Alt string
+    Title string
+    Sizes string
+    Srcset string
+}
+
+templ Image(props ImageProps, attrs templ.Attributes) {
+    <img 
+        src={props.Src} 
+        alt={props.Alt} 
+        title={props.Title}, 
+        sizes={props.Sizes} 
+        srcset={props.Srcset} 
+        { attrs... }        
+    />
+
+}
