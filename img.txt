@@ -1,0 +1,10 @@
+<img 
+ width="796" 
+ height="769" 
+ src="https://cloudageio.com/wp-content/uploads/2023/11/about-image.png" 
+ alt="" 
+ title="" 
+ sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) 796px, 100vw" 
+ srcset="https://cloudageio.com/wp-content/uploads/2023/11/about-image.png 796w,
+         https://cloudageio.com/wp-content/uploads/2023/11/about-image-480x464.png 480w"
+ >

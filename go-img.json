@@ -1,0 +1,4 @@
+{
+  "assets_dir": "./assets/images",
+  "included_extensions": [".png", ".jpeg", ".jpg"]
+}
