@@ -3,6 +3,8 @@ package generator
 import (
 	"fmt"
 	img "go-img/internal/image"
+	"log"
+	"os"
 )
 
 type ImageGenerator struct {
@@ -30,5 +32,21 @@ func (ig ImageGenerator) GenerateImages() error {
 }
 
 func (ig ImageGenerator) GenerateHTMLs() error {
+
+	if _, err := os.Stat("tmp/go-images.md"); err == nil {
+		os.Remove("tmp/go-images.md")
+	}
+	file, err := os.OpenFile("tmp/go-images.md", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	if err != nil {
+		log.Fatal("could not generate file with html templates")
+
+	}
+	for _, i := range ig.Images {
+		i.AlternateWidths = ig.Widths
+		node := i.HTML(ig.Widths)
+
+		file.WriteString(fmt.Sprintf("### %s\n", i.Path+"/"+i.Name+i.Extension))
+		file.WriteString(node + "\n\n")
+	}
 	return nil
 }

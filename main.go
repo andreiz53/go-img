@@ -2,7 +2,7 @@ package main
 
 import (
 	_ "embed"
-	generator "go-img/internal/convert"
+	"go-img/internal/generator"
 	img "go-img/internal/image"
 	"go-img/internal/search"
 	"log"
@@ -10,9 +10,10 @@ import (
 
 var (
 	AssetsDir          = "assets/images"
+	FSDir              = "assets/images"
 	TmpDir             = "tmp"
 	IncludedExtensions = []string{".png", ".jpg", ".jpeg"}
-	WidthsToConvert    = []string{"400", "200"}
+	WidthsToConvert    = []string{"200", "600"}
 )
 
 func main() {
@@ -33,7 +34,8 @@ func main() {
 	if err != nil {
 		log.Fatal("could not generate images")
 	}
-	// generate new images
-	// generate html file with the image
-
+	err = generator.GenerateHTMLs()
+	if err != nil {
+		log.Fatal("could not generate HTML")
+	}
 }

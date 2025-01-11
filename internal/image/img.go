@@ -3,21 +3,28 @@ package img
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"image"
 	"image/jpeg"
 	"image/png"
+	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/nfnt/resize"
+	"golang.org/x/net/html"
+	"golang.org/x/net/html/atom"
 )
 
 type Image struct {
-	Name      string
-	Path      string
-	Extension string
+	Name            string
+	Path            string
+	Extension       string
+	Width           string
+	Height          string
+	AlternateWidths []string
 }
 
 const (
@@ -40,10 +47,15 @@ func New(path string) *Image {
 	name = name[:len(name)-len(extension)]
 	newPath := strings.Join(splitPath[:len(splitPath)-1], "/")
 
+	// calculate width and height
+	width, height := getImageSizes(path)
+
 	return &Image{
 		Extension: extension,
 		Name:      name,
 		Path:      newPath,
+		Width:     fmt.Sprint(width),
+		Height:    fmt.Sprint(height),
 	}
 }
 
@@ -119,9 +131,71 @@ func (i Image) Resize(width string) (Image, error) {
 	default:
 		return Image{}, errors.New("unsupported file extension")
 	}
-	return Image{
-		Name:      newName,
-		Path:      newPath,
-		Extension: i.Extension,
-	}, nil
+	return *New(newPath), nil
+}
+
+func (i Image) HTML(widths []string) string {
+	attributes := []html.Attribute{
+		{Key: "width", Val: i.Width},
+		{Key: "height", Val: i.Height},
+		{Key: "alt", Val: ""},
+		{Key: "title", Val: i.Name},
+		i.HTMLSizes(),
+		i.HTMLSrcset(),
+	}
+
+	node := html.Node{
+		Type:     html.ElementNode,
+		DataAtom: atom.Img,
+		Data:     "img",
+		Attr:     attributes,
+	}
+
+	var b bytes.Buffer
+	err := html.Render(&b, &node)
+	if err != nil {
+		log.Fatal("could not read image html")
+	}
+	return b.String()
+}
+
+func (i Image) HTMLSizes() html.Attribute {
+	if len(i.AlternateWidths) == 0 {
+		return html.Attribute{}
+	}
+	attr := html.Attribute{
+		Key: "sizes",
+	}
+	attrVal := fmt.Sprintf("(min-width: 0px) and (max-width: %spx) %spx, ", i.AlternateWidths[0], i.AlternateWidths[0])
+	if len(i.AlternateWidths) == 1 {
+		attr.Val = attrVal + i.Width + "px"
+		return attr
+	}
+	for idx, width := range i.AlternateWidths {
+		if idx > 0 {
+			prevWidth := i.AlternateWidths[idx-1]
+			attrVal += fmt.Sprintf("(min-width: %spx) and (max-width: %spx) %spx, ", prevWidth, width, width)
+		}
+	}
+	attr.Val = attrVal + i.Width + "px"
+	return attr
+}
+
+func (i Image) HTMLSrcset() html.Attribute {
+	if len(i.AlternateWidths) == 0 {
+		return html.Attribute{}
+	}
+	attr := html.Attribute{
+		Key: "srcset",
+	}
+	var attrVal string
+	for idx, width := range i.AlternateWidths {
+		altImgSrc := i.Path + "/" + i.Name + "_" + width + i.Extension
+		attrVal += altImgSrc + " " + width + "w"
+		if idx < len(i.AlternateWidths)-1 {
+			attrVal += ", "
+		}
+	}
+	attr.Val = attrVal
+	return attr
 }
