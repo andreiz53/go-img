@@ -6,15 +6,14 @@ import (
 	"go-img/internal/generator"
 	"go-img/internal/img"
 	"go-img/internal/search"
+	"go-img/internal/util"
 	"log"
 )
 
 func main() {
 	s := search.NewFileSearcher(constants.AssetsDir, constants.IncludedExtensions)
 	files, err := s.Search()
-	if err != nil {
-		log.Fatal("could not search through the given directory")
-	}
+	util.Check(err)
 
 	images := img.NewFromSlice(files)
 	if images == nil {
@@ -24,15 +23,11 @@ func main() {
 
 	generator := generator.NewImageGenerator(images, constants.WidthsToConvert)
 	err = generator.GenerateImages()
-	if err != nil {
-		log.Fatal("could not generate images")
-	}
+	util.Check(err)
+
 	err = generator.GenerateHTMLs()
-	if err != nil {
-		log.Fatal("could not generate HTML")
-	}
+	util.Check(err)
+
 	err = generator.GenerateTempl()
-	if err != nil {
-		log.Fatal("could not generate templ", err)
-	}
+	util.Check(err)
 }

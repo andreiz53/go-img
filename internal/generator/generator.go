@@ -6,6 +6,7 @@ import (
 	"go-img/internal/util"
 	"log"
 	"os"
+	"strconv"
 )
 
 type ImageGenerator struct {
@@ -23,9 +24,16 @@ func NewImageGenerator(images []*img.Image, widths []string) ImageGenerator {
 func (ig ImageGenerator) GenerateImages() error {
 	for _, i := range ig.Images {
 		for _, width := range ig.Widths {
-			_, err := i.Resize(width)
-			if err != nil {
-				fmt.Println("failed to resize image", err)
+			imageWidth, err := strconv.ParseInt(i.Width, 10, 64)
+			util.Check(err)
+			resizeWidth, err := strconv.ParseInt(width, 10, 64)
+			util.Check(err)
+			if resizeWidth < imageWidth {
+				_, err := i.Resize(width)
+				if err != nil {
+					fmt.Println("failed to resize image", err)
+					return err
+				}
 			}
 		}
 	}
@@ -37,7 +45,7 @@ func (ig ImageGenerator) GenerateHTMLs() error {
 	if _, err := os.Stat("tmp/go-images.md"); err == nil {
 		os.Remove("tmp/go-images.md")
 	}
-	file, err := os.OpenFile("tmp/go-images.md", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660)
+	file, err := os.OpenFile("tmp/go-images.md", os.O_RDWR|os.O_APPEND|os.O_CREATE, 0661)
 	if err != nil {
 		log.Fatal("could not generate file with html templates")
 

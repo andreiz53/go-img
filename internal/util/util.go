@@ -2,6 +2,7 @@ package util
 
 import (
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"slices"
@@ -44,4 +45,10 @@ func CopyFile(src string, dst string) error {
 		return err
 	}
 	return nil
+}
+
+func Check(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
